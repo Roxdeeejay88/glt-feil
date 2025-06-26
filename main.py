@@ -321,6 +321,9 @@ class CameraApp(QMainWindow):
         self.signals.update_gui.emit([], f"Frame size: {w}x{h}")
         field_w = int(self.field_x.value() / self.mm_per_pixel)
         field_h = int(self.field_y.value() / self.mm_per_pixel)
+        # Begrenze das Feld auf die Bildgröße, damit es korrekt zentriert werden kann
+        field_w = min(field_w, w)
+        field_h = min(field_h, h)
         if field_w <= 0 or field_h <= 0:
             self.signals.update_gui.emit([], f"Ungültige Feldgröße: field_w={field_w}, field_h={field_h}")
             return
@@ -427,6 +430,9 @@ class CameraApp(QMainWindow):
         # Zeichne das Feld als Overlay
         field_w = int(self.field_x.value() / self.mm_per_pixel)
         field_h = int(self.field_y.value() / self.mm_per_pixel)
+        # Begrenze das Feld auf die Bildgröße, damit es korrekt zentriert werden kann
+        field_w = min(field_w, w)
+        field_h = min(field_h, h)
         start_pos = self.start_pos.currentText()
         if start_pos == "Mitte":
             x0 = (w - field_w) // 2  # Zentrierung basierend auf tatsächlicher Frame-Größe
@@ -500,7 +506,8 @@ class CameraApp(QMainWindow):
 
     def start_training(self):
         self.training_mode = True
-        self.recognition_paused = True
+        # Recognition should remain active so contours can be detected
+        self.recognition_paused = False
         self.training_contour = None
         self.rectangle_points = []
         self.signals.update_gui.emit([],
